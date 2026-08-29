@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --accent: #eef2ff;
+  --accent-foreground: #4338ca;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --success: #16a34a;
+  --warning: #d97706;
+  --ring: #4f46e5;
+
+  /* Ordinal ramp for the stage-funnel chart: one hue, light -> dark, tracking
+     stage progression. Light-mode range kept at/above step 250 for contrast
+     against a light surface (see dataviz skill palette notes). */
+  --chart-stage-0: #86b6ef;
+  --chart-stage-1: #6da7ec;
+  --chart-stage-2: #5598e7;
+  --chart-stage-3: #3987e5;
+  --chart-stage-4: #2a78d6;
+  --chart-stage-5: #256abf;
+  --chart-stage-6: #1c5cab;
+  --chart-stage-7: #184f95;
+  --chart-stage-8: #104281;
+  --chart-stage-9: #0d366b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0b1120;
+    --foreground: #e2e8f0;
+    --card: #111827;
+    --card-foreground: #e2e8f0;
+    --border: #1f2937;
+    --input: #1f2937;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --primary: #818cf8;
+    --primary-foreground: #0b1120;
+    --accent: #1e1b4b;
+    --accent-foreground: #c7d2fe;
+    --destructive: #f87171;
+    --destructive-foreground: #0b1120;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --ring: #818cf8;
+
+    /* Dark-mode range kept at/below step 600 for contrast against the dark
+       surface (11 safe steps available; step 550 dropped to land on 10). */
+    --chart-stage-0: #cde2fb;
+    --chart-stage-1: #b7d3f6;
+    --chart-stage-2: #9ec5f4;
+    --chart-stage-3: #86b6ef;
+    --chart-stage-4: #6da7ec;
+    --chart-stage-5: #5598e7;
+    --chart-stage-6: #3987e5;
+    --chart-stage-7: #2a78d6;
+    --chart-stage-8: #256abf;
+    --chart-stage-9: #184f95;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
