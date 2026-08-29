@@ -9,6 +9,9 @@ from pathlib import Path
 DATA_FILE = Path(__file__).parent / "applications.json"
 STATUSES = ["not contacted", "emailed", "replied", "closed"]
 DATE_FORMAT = "%Y-%m-%d"
+DUE_SOON_DAYS = 14
+RED = "\033[91m"
+RESET = "\033[0m"
 
 
 def load_entries():
@@ -44,29 +47,44 @@ def cmd_add(args):
     print(f"Added: {args.university} ({args.programme}), deadline {args.deadline}")
 
 
+def is_due_soon(entry, today):
+    if entry["status"] == "closed":
+        return False
+    deadline = datetime.strptime(entry["deadline"], DATE_FORMAT).date()
+    return (deadline - today).days <= DUE_SOON_DAYS
+
+
 def cmd_list(args):
     entries = load_entries()
     if not entries:
         print("No entries yet.")
         return
     entries = sorted(entries, key=lambda e: e["deadline"])
+    today = datetime.now().date()
+    use_color = sys.stdout.isatty()
 
+    idx_width = len(f"[{len(entries) - 1}]")
     widths = {
         "university": max(len("University"), max(len(e["university"]) for e in entries)),
         "programme": max(len("Programme"), max(len(e["programme"]) for e in entries)),
         "deadline": max(len("Deadline"), len(DATE_FORMAT)),
-        "contact": max(len("Contact"), max(len(e["contact"]) for e in entries)),
         "status": max(len("Status"), max(len(e["status"]) for e in entries)),
     }
 
-    def row(u, p, d, c, s):
+    def row(u, p, d, s, flag=""):
         return (f"{u:<{widths['university']}}  {p:<{widths['programme']}}  "
-                f"{d:<{widths['deadline']}}  {c:<{widths['contact']}}  {s:<{widths['status']}}")
+                f"{d:<{widths['deadline']}}  {s:<{widths['status']}}  {flag}")
 
-    print(row("University", "Programme", "Deadline", "Contact", "Status"))
-    print("-" * (sum(widths.values()) + 8))
+    header = " " * idx_width + "  " + row("University", "Programme", "Deadline", "Status", "")
+    print(header)
+    print("-" * len(header))
     for i, e in enumerate(entries):
-        print(f"[{i}] " + row(e["university"], e["programme"], e["deadline"], e["contact"], e["status"]))
+        due_soon = is_due_soon(e, today)
+        flag = "<- due soon!" if due_soon else ""
+        line = f"[{i}]".ljust(idx_width) + "  " + row(e["university"], e["programme"], e["deadline"], e["status"], flag)
+        if due_soon and use_color:
+            line = f"{RED}{line}{RESET}"
+        print(line)
 
 
 def cmd_status(args):

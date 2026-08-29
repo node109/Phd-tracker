@@ -20,7 +20,9 @@ Add an entry (new entries start as `not contacted`):
 python3 tracker.py add "MIT" "PhD CS" 2026-12-01 "Jane Doe"
 ```
 
-List all entries, sorted by deadline:
+List all entries as a table (university, programme, deadline, status),
+sorted by deadline. Entries due within 14 days are highlighted (and marked
+with `<- due soon!`), unless their status is `closed`:
 
 ```
 python3 tracker.py list
