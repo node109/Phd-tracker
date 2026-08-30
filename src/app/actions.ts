@@ -102,6 +102,34 @@ export async function deleteProgramme(programmeId: string) {
   redirect("/board");
 }
 
+export async function bulkDeleteProgrammes(programmeIds: string[]) {
+  if (programmeIds.length === 0) return;
+  const supabase = createClient();
+  const { error } = await supabase.from("programmes").delete().in("id", programmeIds);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/board");
+  revalidatePath("/documents");
+}
+
+export async function bulkUpdateStage(programmeIds: string[], stage: Stage) {
+  if (programmeIds.length === 0) return;
+  const supabase = createClient();
+  const { error } = await supabase.from("programmes").update({ stage }).in("id", programmeIds);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/board");
+}
+
+export async function bulkUpdatePriority(programmeIds: string[], priority: Priority) {
+  if (programmeIds.length === 0) return;
+  const supabase = createClient();
+  const { error } = await supabase.from("programmes").update({ priority }).in("id", programmeIds);
+  if (error) throw new Error(error.message);
+  revalidatePath("/");
+  revalidatePath("/board");
+}
+
 export async function addContact(programmeId: string, formData: FormData) {
   const supabase = createClient();
   const name = str(formData, "name");
