@@ -204,6 +204,26 @@ export async function deleteTask(taskId: string) {
   revalidatePath("/tasks");
 }
 
+export async function uploadDocumentFile(programmeId: string, type: DocumentType, formData: FormData) {
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0) throw new Error("Choose a file to upload");
+
+  const supabase = createClient();
+  const path = `${programmeId}/${type}/${Date.now()}-${file.name}`;
+  const { error: uploadError } = await supabase.storage.from("documents").upload(path, file, {
+    contentType: file.type || undefined,
+  });
+  if (uploadError) throw new Error(uploadError.message);
+
+  const { error: dbError } = await supabase
+    .from("documents")
+    .upsert({ programme_id: programmeId, type, file_path: path }, { onConflict: "programme_id,type" });
+  if (dbError) throw new Error(dbError.message);
+
+  revalidatePath("/documents");
+  revalidatePath(`/programmes/${programmeId}`);
+}
+
 export async function upsertDocumentStatus(
   programmeId: string,
   type: DocumentType,

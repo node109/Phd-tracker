@@ -121,6 +121,7 @@ export interface Document {
   type: DocumentType;
   status: DocumentStatus;
   notes: string | null;
+  file_path: string | null;
   updated_at: string;
 }
 

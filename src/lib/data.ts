@@ -46,6 +46,22 @@ export async function getDashboardData() {
   return { programmes, interactions, documents, contacts };
 }
 
+const SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 hour, regenerated on every page load
+
+export async function getDocumentFileUrls(documents: Document[]): Promise<Record<string, string>> {
+  const withFiles = documents.filter((d): d is Document & { file_path: string } => !!d.file_path);
+  if (withFiles.length === 0) return {};
+
+  const supabase = createClient();
+  const entries = await Promise.all(
+    withFiles.map(async (doc) => {
+      const { data } = await supabase.storage.from("documents").createSignedUrl(doc.file_path, SIGNED_URL_TTL_SECONDS);
+      return [doc.id, data?.signedUrl] as const;
+    })
+  );
+  return Object.fromEntries(entries.filter(([, url]) => !!url)) as Record<string, string>;
+}
+
 export async function getProgrammeWithRelations(id: string): Promise<ProgrammeWithRelations | null> {
   const supabase = createClient();
   const [{ data: programme, error: programmeError }, { data: contacts, error: contactsError }, { data: interactions, error: interactionsError }, { data: documents, error: documentsError }] =

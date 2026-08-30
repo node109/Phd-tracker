@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { DocumentChecklist } from "@/components/document-checklist";
 import { OutcomeSelect } from "@/components/outcome-select";
 import { OutcomeBadge, PriorityBadge, StageBadge } from "@/components/badges";
-import { getProgrammeWithRelations } from "@/lib/data";
+import { getDocumentFileUrls, getProgrammeWithRelations } from "@/lib/data";
 import { CONTACT_ROLES, INTERACTION_LABELS, INTERACTION_TYPES, PRIORITIES } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +17,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps<"/progra
   const { id } = await params;
   const programme = await getProgrammeWithRelations(id);
   if (!programme) notFound();
+  const documentFileUrls = await getDocumentFileUrls(programme.documents);
 
   const addInteractionWithId = addInteraction.bind(null, programme.id);
   const addContactWithId = addContact.bind(null, programme.id);
@@ -109,7 +110,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps<"/progra
             <CardTitle className="text-base text-foreground">Documents</CardTitle>
           </CardHeader>
           <CardContent>
-            <DocumentChecklist programmeId={programme.id} documents={programme.documents} />
+            <DocumentChecklist programmeId={programme.id} documents={programme.documents} fileUrls={documentFileUrls} />
           </CardContent>
         </Card>
 
