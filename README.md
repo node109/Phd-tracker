@@ -101,7 +101,7 @@ with one click — it opens a small popup pre-filled with the page's title
 and URL, which you can review and edit before saving:
 
 ```
-javascript:(function(){var u=encodeURIComponent(location.href);var t=encodeURIComponent(document.title);window.open('https://www.corporatedropout.in/programmes/new?url='+u+'&title='+t,'phdtracker','width=480,height=760');})();
+javascript:(function(){var u=encodeURIComponent(location.href);var t=encodeURIComponent(document.title);window.open('https://phdtracker.corporatedropout.in/programmes/new?url='+u+'&title='+t,'phdtracker','width=480,height=760');})();
 ```
 
 This works in Safari, Chrome, or any browser — no extension or app-store
