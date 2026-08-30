@@ -6,18 +6,27 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CONTACT_ROLES, PRIORITIES } from "@/lib/types";
 
-export default function NewProgrammePage() {
+export default async function NewProgrammePage({ searchParams }: PageProps<"/programmes/new">) {
+  const params = await searchParams;
+  const prefillUniversity = typeof params.title === "string" ? params.title : "";
+  const prefillWebsite = typeof params.url === "string" ? params.url : "";
+
   return (
     <Card className="mx-auto max-w-2xl">
       <CardHeader>
         <CardTitle className="text-base text-foreground">Add a programme</CardTitle>
       </CardHeader>
       <CardContent>
+        {(prefillUniversity || prefillWebsite) && (
+          <p className="mb-4 rounded-md bg-accent px-3 py-2 text-xs text-accent-foreground">
+            Prefilled from the page you were browsing — check the fields below before saving.
+          </p>
+        )}
         <form action={createProgramme} className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor="university">University *</Label>
-              <Input id="university" name="university" required />
+              <Input id="university" name="university" defaultValue={prefillUniversity} required />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="programme">Programme *</Label>
@@ -37,7 +46,7 @@ export default function NewProgrammePage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="website">Programme website</Label>
-              <Input id="website" name="website" type="url" placeholder="https://" />
+              <Input id="website" name="website" type="url" placeholder="https://" defaultValue={prefillWebsite} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="priority">Priority</Label>

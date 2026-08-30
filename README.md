@@ -13,15 +13,25 @@ This replaces the earlier CLI version of this project.
   activity, stat tiles, an upcoming-deadlines list (anything due within 14
   days), and a chart of how many programmes are in each pipeline stage.
 - **Board** (`/board`) — a Kanban view of every programme, one column per
-  stage, with a dropdown on each card to move it forward.
+  stage. Move a card by dragging it or via its dropdown, search/filter by
+  university, programme, country, or priority, select multiple cards for
+  bulk move/re-prioritize/delete, and use the "Mark emailed"/"Mark replied"
+  button for one-click logging without opening the programme.
 - **Add Programme** (`/programmes/new`) — log a new university/programme,
-  its deadline, and (optionally) your first contact there.
+  its deadline, and (optionally) your first contact there. Supports being
+  prefilled by the bookmarklet below.
 - **Programme detail** (`/programmes/[id]`) — edit the programme, manage its
   contacts, log an interaction timeline (research notes, emails sent/replied,
   calls, meetings), track its outcome once a decision comes in, and check off
-  its documents (SOP, research proposal, CV, writing sample, recommendation).
+  and upload files for its documents (SOP, research proposal, CV, writing
+  sample, recommendation).
 - **Documents** (`/documents`) — every document across every programme,
   grouped by status, so you can see at a glance what still needs writing.
+- **Tasks** (`/tasks`) — a general to-do/notes list for anything that isn't
+  tied to one specific programme (reading list, generic action items,
+  recommenders you haven't matched to an application yet).
+- **Export** — a button on the dashboard downloads your entire dataset as
+  JSON (`/api/export`), as a personal backup.
 
 ### Gamification
 
@@ -46,10 +56,11 @@ npm run dev
 ## Setting up the database (Supabase)
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. In the Supabase dashboard, open **SQL Editor**, paste the contents of
-   [`supabase/migrations/0001_init.sql`](./supabase/migrations/0001_init.sql),
-   and run it. This creates the `programmes`, `contacts`, `interactions`, and
-   `documents` tables.
+2. In the Supabase dashboard, open **SQL Editor** and run each file in
+   `supabase/migrations/` **in order** (paste the contents, click Run, move
+   to the next file): `0001_init.sql` creates the core tables, `0002_tasks.sql`
+   adds the Tasks page's table, `0003_storage.sql` adds document file
+   uploads.
 3. In **Project Settings → API**, copy the **Project URL** and **anon public**
    key into `.env.local` (locally) and into your Vercel project's environment
    variables (for deployment):
@@ -81,6 +92,21 @@ as you don't share the link. If you do want to share it later, either:
    above in the Vercel project settings.
 4. Deploy. Every push to this branch will redeploy automatically once the
    Vercel project is connected.
+
+## Quick-add bookmarklet
+
+Drag this link to your bookmarks bar (or bookmark this page and edit the
+URL afterward) to add whatever programme page you're currently browsing
+with one click — it opens a small popup pre-filled with the page's title
+and URL, which you can review and edit before saving:
+
+```
+javascript:(function(){var u=encodeURIComponent(location.href);var t=encodeURIComponent(document.title);window.open('https://www.corporatedropout.in/programmes/new?url='+u+'&title='+t,'phdtracker','width=480,height=760');})();
+```
+
+This works in Safari, Chrome, or any browser — no extension or app-store
+packaging needed. Nothing is saved until you review the popup and click
+"Add programme."
 
 ## Tech stack
 
