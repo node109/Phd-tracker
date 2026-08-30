@@ -130,6 +130,27 @@ export async function bulkUpdatePriority(programmeIds: string[], priority: Prior
   revalidatePath("/board");
 }
 
+const QUICK_ACTIONS = {
+  emailed: { stage: "emailed", interactionType: "email_sent" },
+  replied: { stage: "replied", interactionType: "email_reply" },
+} as const satisfies Record<string, { stage: Stage; interactionType: InteractionType }>;
+
+export type QuickAction = keyof typeof QUICK_ACTIONS;
+
+export async function logQuickInteraction(programmeId: string, action: QuickAction) {
+  const { stage, interactionType } = QUICK_ACTIONS[action];
+  const supabase = createClient();
+  const { error: stageError } = await supabase.from("programmes").update({ stage }).eq("id", programmeId);
+  if (stageError) throw new Error(stageError.message);
+  const { error: interactionError } = await supabase
+    .from("interactions")
+    .insert({ programme_id: programmeId, type: interactionType });
+  if (interactionError) throw new Error(interactionError.message);
+  revalidatePath("/");
+  revalidatePath("/board");
+  revalidatePath(`/programmes/${programmeId}`);
+}
+
 export async function addContact(programmeId: string, formData: FormData) {
   const supabase = createClient();
   const name = str(formData, "name");

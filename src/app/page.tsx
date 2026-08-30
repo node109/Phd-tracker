@@ -1,3 +1,4 @@
+import { Download } from "lucide-react";
 import { getDashboardData } from "@/lib/data";
 import { computeBadges, computePoints, computeStreak } from "@/lib/gamification";
 import { isDueSoon } from "@/lib/deadlines";
@@ -6,6 +7,7 @@ import { StatTile } from "@/components/stat-tile";
 import { GamificationHeader } from "@/components/gamification-header";
 import { DeadlineList } from "@/components/deadline-list";
 import { StageFunnelChart } from "@/components/stage-funnel-chart";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // This page reads live data from Supabase on every request — there's nothing
@@ -32,6 +34,15 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button asChild variant="outline" size="sm">
+          <a href="/api/export" download>
+            <Download className="h-3.5 w-3.5" />
+            Export data
+          </a>
+        </Button>
+      </div>
+
       <GamificationHeader points={points} streak={streak} badges={badges} />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
