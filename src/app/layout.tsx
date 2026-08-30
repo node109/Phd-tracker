@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
-import { LayoutDashboard, KanbanSquare, FileText, Plus, GraduationCap } from "lucide-react";
+import { LayoutDashboard, KanbanSquare, FileText, CheckSquare, Plus, GraduationCap } from "lucide-react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -23,6 +23,7 @@ const NAV_LINKS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/board", label: "Board", icon: KanbanSquare },
   { href: "/documents", label: "Documents", icon: FileText },
+  { href: "/tasks", label: "Tasks", icon: CheckSquare },
 ];
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

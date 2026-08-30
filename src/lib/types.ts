@@ -124,6 +124,14 @@ export interface Document {
   updated_at: string;
 }
 
+export interface Task {
+  id: string;
+  title: string;
+  done: boolean;
+  notes: string | null;
+  created_at: string;
+}
+
 export interface ProgrammeWithRelations extends Programme {
   contacts: Contact[];
   interactions: Interaction[];

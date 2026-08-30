@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase";
-import type { Contact, Document, Interaction, Programme, ProgrammeWithRelations } from "@/lib/types";
+import type { Contact, Document, Interaction, Programme, ProgrammeWithRelations, Task } from "@/lib/types";
 
 export async function getProgrammes(): Promise<Programme[]> {
   const supabase = createClient();
@@ -25,6 +25,13 @@ export async function getDocuments(): Promise<Document[]> {
 export async function getContacts(): Promise<Contact[]> {
   const supabase = createClient();
   const { data, error } = await supabase.from("contacts").select("*");
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function getTasks(): Promise<Task[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase.from("tasks").select("*").order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data ?? [];
 }

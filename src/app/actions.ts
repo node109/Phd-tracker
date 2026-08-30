@@ -181,6 +181,29 @@ export async function addInteraction(programmeId: string, formData: FormData) {
   revalidatePath(`/programmes/${programmeId}`);
 }
 
+export async function createTask(formData: FormData) {
+  const title = str(formData, "title");
+  if (!title) throw new Error("Task title is required");
+  const supabase = createClient();
+  const { error } = await supabase.from("tasks").insert({ title, notes: str(formData, "notes") });
+  if (error) throw new Error(error.message);
+  revalidatePath("/tasks");
+}
+
+export async function toggleTask(taskId: string, done: boolean) {
+  const supabase = createClient();
+  const { error } = await supabase.from("tasks").update({ done }).eq("id", taskId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/tasks");
+}
+
+export async function deleteTask(taskId: string) {
+  const supabase = createClient();
+  const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/tasks");
+}
+
 export async function upsertDocumentStatus(
   programmeId: string,
   type: DocumentType,
