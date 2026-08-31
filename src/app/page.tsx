@@ -6,6 +6,7 @@ import { STAGES, type Stage } from "@/lib/types";
 import { StatTile } from "@/components/stat-tile";
 import { GamificationHeader } from "@/components/gamification-header";
 import { DeadlineList } from "@/components/deadline-list";
+import { UpcomingOpenDates } from "@/components/upcoming-open-dates";
 import { StageFunnelChart } from "@/components/stage-funnel-chart";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,9 +24,14 @@ export default async function DashboardPage() {
 
   const active = programmes.filter((p) => p.stage !== "decision").length;
   const dueSoonCount = programmes.filter((p) => isDueSoon(p)).length;
-  const emailedOrLater = programmes.filter((p) => STAGES.indexOf(p.stage) >= STAGES.indexOf("emailed"));
-  const repliedOrLater = programmes.filter((p) => STAGES.indexOf(p.stage) >= STAGES.indexOf("replied"));
-  const replyRate = emailedOrLater.length > 0 ? Math.round((repliedOrLater.length / emailedOrLater.length) * 100) : 0;
+  const emailedProgrammeIds = new Set(
+    interactions.filter((i) => i.type === "email_sent").map((i) => i.programme_id)
+  );
+  const repliedProgrammeIds = new Set(
+    interactions.filter((i) => i.type === "email_reply").map((i) => i.programme_id)
+  );
+  const replyRate =
+    emailedProgrammeIds.size > 0 ? Math.round((repliedProgrammeIds.size / emailedProgrammeIds.size) * 100) : 0;
 
   const counts = STAGES.reduce(
     (acc, stage) => ({ ...acc, [stage]: programmes.filter((p) => p.stage === stage).length }),
@@ -54,6 +60,7 @@ export default async function DashboardPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <DeadlineList programmes={programmes} />
+        <UpcomingOpenDates programmes={programmes} />
         <Card>
           <CardHeader>
             <CardTitle>Pipeline by stage</CardTitle>

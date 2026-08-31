@@ -42,8 +42,8 @@ a black hole while you wait for replies.
 
 ## Pipeline stages
 
-`Researching → Found Advisor → Drafting Outreach → Emailed → Replied →
-In Discussion → Preparing Application → Submitted → Interview → Decision`
+`Not Open Yet → Researching → In Discussion → Preparing Application →
+Submitted → Interview → Decision`
 
 ## Local development
 
@@ -63,8 +63,9 @@ npm run dev
    uploads, `0004_multi_user_schema.sql` and `0005_scope_rls_to_owner.sql`
    add per-user data isolation — see **Authentication** below for how to
    sequence those two safely if you're upgrading an existing deployment —
-   and `0006_profiles.sql` adds each account's forwarding-email token (see
-   **Email** below).
+   `0006_profiles.sql` adds each account's forwarding-email token (see
+   **Email** below), and `0007_pipeline_redesign.sql` updates the pipeline
+   stages and adds an "opens on" date field.
 3. In **Project Settings → API**, copy the **Project URL** and **anon public**
    key into `.env.local` (locally) and into your Vercel project's environment
    variables (for deployment):

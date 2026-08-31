@@ -24,8 +24,9 @@ export function KanbanCard({ programme, advisorName, selected, onToggleSelect }:
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: programme.id });
 
   const stageIndex = STAGES.indexOf(programme.stage);
+  const inDiscussionIndex = STAGES.indexOf("in_discussion");
   const quickAction: QuickAction | null =
-    stageIndex < STAGES.indexOf("emailed") ? "emailed" : stageIndex === STAGES.indexOf("emailed") ? "replied" : null;
+    stageIndex < inDiscussionIndex ? "emailed" : stageIndex === inDiscussionIndex ? "replied" : null;
 
   function runQuickAction(action: QuickAction) {
     startTransition(() => logQuickInteraction(programme.id, action));

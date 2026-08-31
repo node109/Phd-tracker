@@ -45,6 +45,10 @@ export default async function NewProgrammePage({ searchParams }: PageProps<"/pro
               <Input id="deadline" name="deadline" type="date" />
             </div>
             <div className="space-y-1.5">
+              <Label htmlFor="opens_on">Opens on</Label>
+              <Input id="opens_on" name="opens_on" type="date" />
+            </div>
+            <div className="space-y-1.5">
               <Label htmlFor="website">Programme website</Label>
               <Input id="website" name="website" type="url" placeholder="https://" defaultValue={prefillWebsite} />
             </div>

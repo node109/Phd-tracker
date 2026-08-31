@@ -70,6 +70,10 @@ export default async function ProgrammeDetailPage({ params }: PageProps<"/progra
                   <Input id="deadline" name="deadline" type="date" defaultValue={programme.deadline ?? ""} />
                 </div>
                 <div className="space-y-1.5">
+                  <Label htmlFor="opens_on">Opens on</Label>
+                  <Input id="opens_on" name="opens_on" type="date" defaultValue={programme.opens_on ?? ""} />
+                </div>
+                <div className="space-y-1.5">
                   <Label htmlFor="website">Website</Label>
                   <Input id="website" name="website" type="url" defaultValue={programme.website ?? ""} />
                 </div>
@@ -130,6 +134,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps<"/progra
                     {contact.role}
                     {contact.email && ` · ${contact.email}`}
                   </div>
+                  {contact.notes && <p className="mt-1 text-muted-foreground">{contact.notes}</p>}
                 </div>
               ))}
             </div>
@@ -143,6 +148,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps<"/progra
                 ))}
               </select>
               <Input name="email" type="email" placeholder="Email" />
+              <Textarea name="notes" rows={2} placeholder="Notes (optional)" className="sm:col-span-3" />
               <Button type="submit" size="sm" className="sm:col-span-3">
                 Add contact
               </Button>

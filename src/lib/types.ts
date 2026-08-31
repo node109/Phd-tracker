@@ -1,9 +1,6 @@
 export const STAGES = [
+  "not_open",
   "researching",
-  "found_advisor",
-  "drafting_outreach",
-  "emailed",
-  "replied",
   "in_discussion",
   "preparing_application",
   "submitted",
@@ -14,11 +11,8 @@ export const STAGES = [
 export type Stage = (typeof STAGES)[number];
 
 export const STAGE_LABELS: Record<Stage, string> = {
+  not_open: "Not Open Yet",
   researching: "Researching",
-  found_advisor: "Found Advisor",
-  drafting_outreach: "Drafting Outreach",
-  emailed: "Emailed",
-  replied: "Replied",
   in_discussion: "In Discussion",
   preparing_application: "Preparing Application",
   submitted: "Submitted",
@@ -95,6 +89,7 @@ export interface Programme {
   degree_type: string | null;
   country: string | null;
   deadline: string | null;
+  opens_on: string | null;
   website: string | null;
   priority: Priority;
   stage: Stage;

@@ -36,6 +36,7 @@ export async function createProgramme(formData: FormData) {
       degree_type: str(formData, "degree_type"),
       country: str(formData, "country"),
       deadline: str(formData, "deadline"),
+      opens_on: str(formData, "opens_on"),
       website: str(formData, "website"),
       priority: (str(formData, "priority") ?? "medium") as Priority,
       notes: str(formData, "notes"),
@@ -88,6 +89,7 @@ export async function updateProgramme(programmeId: string, formData: FormData) {
       degree_type: str(formData, "degree_type"),
       country: str(formData, "country"),
       deadline: str(formData, "deadline"),
+      opens_on: str(formData, "opens_on"),
       website: str(formData, "website"),
       priority: (str(formData, "priority") ?? "medium") as Priority,
       notes: str(formData, "notes"),
@@ -136,9 +138,12 @@ export async function bulkUpdatePriority(programmeIds: string[], priority: Prior
   revalidatePath("/board");
 }
 
+// Both quick actions land on "in_discussion" — there's no longer a
+// separate emailed/replied stage, just the interaction log distinguishing
+// which happened.
 const QUICK_ACTIONS = {
-  emailed: { stage: "emailed", interactionType: "email_sent" },
-  replied: { stage: "replied", interactionType: "email_reply" },
+  emailed: { stage: "in_discussion", interactionType: "email_sent" },
+  replied: { stage: "in_discussion", interactionType: "email_reply" },
 } as const satisfies Record<string, { stage: Stage; interactionType: InteractionType }>;
 
 export type QuickAction = keyof typeof QUICK_ACTIONS;
