@@ -1,36 +1,36 @@
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import type { Contact, Document, Interaction, Programme, ProgrammeWithRelations, Task } from "@/lib/types";
 
 export async function getProgrammes(): Promise<Programme[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.from("programmes").select("*").order("deadline", { ascending: true, nullsFirst: false });
   if (error) throw new Error(error.message);
   return data ?? [];
 }
 
 export async function getInteractions(): Promise<Interaction[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.from("interactions").select("*").order("occurred_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data ?? [];
 }
 
 export async function getDocuments(): Promise<Document[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.from("documents").select("*");
   if (error) throw new Error(error.message);
   return data ?? [];
 }
 
 export async function getContacts(): Promise<Contact[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.from("contacts").select("*");
   if (error) throw new Error(error.message);
   return data ?? [];
 }
 
 export async function getTasks(): Promise<Task[]> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.from("tasks").select("*").order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data ?? [];
@@ -52,7 +52,7 @@ export async function getDocumentFileUrls(documents: Document[]): Promise<Record
   const withFiles = documents.filter((d): d is Document & { file_path: string } => !!d.file_path);
   if (withFiles.length === 0) return {};
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const entries = await Promise.all(
     withFiles.map(async (doc) => {
       const { data } = await supabase.storage.from("documents").createSignedUrl(doc.file_path, SIGNED_URL_TTL_SECONDS);
@@ -63,7 +63,7 @@ export async function getDocumentFileUrls(documents: Document[]): Promise<Record
 }
 
 export async function getProgrammeWithRelations(id: string): Promise<ProgrammeWithRelations | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const [{ data: programme, error: programmeError }, { data: contacts, error: contactsError }, { data: interactions, error: interactionsError }, { data: documents, error: documentsError }] =
     await Promise.all([
       supabase.from("programmes").select("*").eq("id", id).maybeSingle(),

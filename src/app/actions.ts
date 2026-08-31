@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
 import type {
   ContactRole,
   DocumentStatus,
@@ -19,8 +19,14 @@ function str(formData: FormData, key: string): string | null {
   return value.trim();
 }
 
+export async function signOut() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/login");
+}
+
 export async function createProgramme(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("programmes")
@@ -55,7 +61,7 @@ export async function createProgramme(formData: FormData) {
 }
 
 export async function updateStage(programmeId: string, stage: Stage) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("programmes").update({ stage }).eq("id", programmeId);
   if (error) throw new Error(error.message);
   revalidatePath("/");
@@ -64,7 +70,7 @@ export async function updateStage(programmeId: string, stage: Stage) {
 }
 
 export async function updateOutcome(programmeId: string, outcome: Outcome) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("programmes").update({ outcome }).eq("id", programmeId);
   if (error) throw new Error(error.message);
   revalidatePath("/");
@@ -73,7 +79,7 @@ export async function updateOutcome(programmeId: string, outcome: Outcome) {
 }
 
 export async function updateProgramme(programmeId: string, formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("programmes")
     .update({
@@ -94,7 +100,7 @@ export async function updateProgramme(programmeId: string, formData: FormData) {
 }
 
 export async function deleteProgramme(programmeId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("programmes").delete().eq("id", programmeId);
   if (error) throw new Error(error.message);
   revalidatePath("/");
@@ -104,7 +110,7 @@ export async function deleteProgramme(programmeId: string) {
 
 export async function bulkDeleteProgrammes(programmeIds: string[]) {
   if (programmeIds.length === 0) return;
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("programmes").delete().in("id", programmeIds);
   if (error) throw new Error(error.message);
   revalidatePath("/");
@@ -114,7 +120,7 @@ export async function bulkDeleteProgrammes(programmeIds: string[]) {
 
 export async function bulkUpdateStage(programmeIds: string[], stage: Stage) {
   if (programmeIds.length === 0) return;
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("programmes").update({ stage }).in("id", programmeIds);
   if (error) throw new Error(error.message);
   revalidatePath("/");
@@ -123,7 +129,7 @@ export async function bulkUpdateStage(programmeIds: string[], stage: Stage) {
 
 export async function bulkUpdatePriority(programmeIds: string[], priority: Priority) {
   if (programmeIds.length === 0) return;
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("programmes").update({ priority }).in("id", programmeIds);
   if (error) throw new Error(error.message);
   revalidatePath("/");
@@ -139,7 +145,7 @@ export type QuickAction = keyof typeof QUICK_ACTIONS;
 
 export async function logQuickInteraction(programmeId: string, action: QuickAction) {
   const { stage, interactionType } = QUICK_ACTIONS[action];
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error: stageError } = await supabase.from("programmes").update({ stage }).eq("id", programmeId);
   if (stageError) throw new Error(stageError.message);
   const { error: interactionError } = await supabase
@@ -152,7 +158,7 @@ export async function logQuickInteraction(programmeId: string, action: QuickActi
 }
 
 export async function addContact(programmeId: string, formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const name = str(formData, "name");
   if (!name) throw new Error("Contact name is required");
   const { error } = await supabase.from("contacts").insert({
@@ -167,7 +173,7 @@ export async function addContact(programmeId: string, formData: FormData) {
 }
 
 export async function addInteraction(programmeId: string, formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const type = str(formData, "type") as InteractionType | null;
   if (!type) throw new Error("Interaction type is required");
   const { error } = await supabase.from("interactions").insert({
@@ -184,21 +190,21 @@ export async function addInteraction(programmeId: string, formData: FormData) {
 export async function createTask(formData: FormData) {
   const title = str(formData, "title");
   if (!title) throw new Error("Task title is required");
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("tasks").insert({ title, notes: str(formData, "notes") });
   if (error) throw new Error(error.message);
   revalidatePath("/tasks");
 }
 
 export async function toggleTask(taskId: string, done: boolean) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("tasks").update({ done }).eq("id", taskId);
   if (error) throw new Error(error.message);
   revalidatePath("/tasks");
 }
 
 export async function deleteTask(taskId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.from("tasks").delete().eq("id", taskId);
   if (error) throw new Error(error.message);
   revalidatePath("/tasks");
@@ -208,7 +214,7 @@ export async function uploadDocumentFile(programmeId: string, type: DocumentType
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) throw new Error("Choose a file to upload");
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const path = `${programmeId}/${type}/${Date.now()}-${file.name}`;
   const { error: uploadError } = await supabase.storage.from("documents").upload(path, file, {
     contentType: file.type || undefined,
@@ -230,7 +236,7 @@ export async function upsertDocumentStatus(
   status: DocumentStatus,
   notes?: string | null
 ) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("documents")
     .upsert(

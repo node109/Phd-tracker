@@ -60,7 +60,9 @@ npm run dev
    `supabase/migrations/` **in order** (paste the contents, click Run, move
    to the next file): `0001_init.sql` creates the core tables, `0002_tasks.sql`
    adds the Tasks page's table, `0003_storage.sql` adds document file
-   uploads.
+   uploads, `0004_multi_user_schema.sql` and `0005_scope_rls_to_owner.sql`
+   add per-user data isolation — see **Authentication** below for how to
+   sequence those two safely if you're upgrading an existing deployment.
 3. In **Project Settings → API**, copy the **Project URL** and **anon public**
    key into `.env.local` (locally) and into your Vercel project's environment
    variables (for deployment):
@@ -69,18 +71,49 @@ npm run dev
    NEXT_PUBLIC_SUPABASE_ANON_KEY=...
    ```
 
-### Before you share this link
+## Authentication
 
-There's no login in v1 — it's built for one person (you) tracking your own
-applications, so keeping it simple mattered more than multi-user auth. That
-means **anyone with your deployed URL and anon key can read and edit your
-data**, including advisor contact details and SOP notes. That's fine as long
-as you don't share the link. If you do want to share it later, either:
+The app is genuinely multi-user: anyone signs in with Google, and Postgres
+Row Level Security scopes every query to `auth.uid()`, so each account only
+ever sees its own programmes, contacts, interactions, documents, and tasks.
+There's no separate password or invite system to manage — Google handles
+identity, Supabase issues the session, and RLS does the data isolation.
 
-- add [Supabase Auth](https://supabase.com/docs/guides/auth) and scope the
-  Row Level Security policies in the migration to `auth.uid()`, or
-- put a simple password gate in front of the app (e.g. Next.js middleware
-  checking a cookie against a secret environment variable).
+### One-time setup
+
+1. **Google Cloud Console** → create an OAuth 2.0 Client ID (Application
+   type: **Web application**). Add this as an authorized redirect URI:
+   ```
+   https://<your-supabase-project-ref>.supabase.co/auth/v1/callback
+   ```
+   Publish the OAuth consent screen (Testing mode caps sign-in to a
+   manually-approved list of testers, which defeats "anyone can sign in").
+   Only basic scopes (openid/email/profile) are requested, so publishing
+   doesn't require Google review.
+2. **Supabase dashboard** → Authentication → Providers → **Google** → paste
+   the Client ID and Client Secret from step 1, enable the provider.
+
+### Rolling this out on an existing deployment (zero downtime)
+
+If you already have data in the old open-access schema, run these in order
+so nothing disappears mid-rollout:
+
+1. Do the Google Cloud + Supabase setup above — this has no effect on the
+   live site yet.
+2. Deploy this code. The *old* permissive policies from `0001`/`0002` are
+   still active at this point, so your first Google login immediately shows
+   your existing data — this just confirms the whole login flow works
+   before anything gets stricter.
+3. Run `0004_multi_user_schema.sql`, then backfill your existing rows to
+   your account (replace the email with the Google account you signed in
+   with):
+   ```sql
+   update programmes set user_id = (select id from auth.users where email = 'you@example.com') where user_id is null;
+   update tasks set user_id = (select id from auth.users where email = 'you@example.com') where user_id is null;
+   ```
+4. Run `0005_scope_rls_to_owner.sql`. Your data is already owned by your
+   account by this point, so nothing is lost — from here on, every other
+   Google account that signs in gets its own empty, fully isolated tracker.
 
 ## Deploying to Vercel
 
@@ -111,8 +144,10 @@ packaging needed. Nothing is saved until you review the popup and click
 ## Tech stack
 
 - Next.js (App Router) + TypeScript + Tailwind CSS
-- Supabase (Postgres) via `@supabase/supabase-js`, read in Server Components
-  and written via Server Actions — no separate API layer
+- Supabase (Postgres + Auth) via `@supabase/ssr`, read in Server Components
+  and written via Server Actions — no separate API layer. Google sign-in
+  issues a session cookie; middleware refreshes it on every request and
+  Row Level Security enforces per-user data isolation
 - Hand-built shadcn/ui-style components on top of Radix UI primitives (the
   shadcn CLI's own registry wasn't reachable from the build environment this
   was built in, so the components were written directly instead of generated

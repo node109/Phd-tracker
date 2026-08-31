@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
-import { LayoutDashboard, KanbanSquare, FileText, CheckSquare, Plus, GraduationCap } from "lucide-react";
+import { LayoutDashboard, KanbanSquare, FileText, CheckSquare, Plus, GraduationCap, LogOut } from "lucide-react";
+import { signOut } from "@/app/actions";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,40 +28,67 @@ const NAV_LINKS = [
   { href: "/tasks", label: "Tasks", icon: CheckSquare },
 ];
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <header className="border-b border-border bg-card">
-          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
-              <GraduationCap className="h-5 w-5 text-primary" />
-              PhD Tracker
-            </Link>
-            <nav className="flex items-center gap-1">
-              {NAV_LINKS.map(({ href, label, icon: Icon }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-                >
-                  <Icon className="h-4 w-4" />
-                  <span className="hidden sm:inline">{label}</span>
-                </Link>
-              ))}
-              <Link
-                href="/programmes/new"
-                className="ml-2 flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Add Programme</span>
+        {user && (
+          <header className="border-b border-border bg-card">
+            <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+              <Link href="/" className="flex items-center gap-2 font-semibold">
+                <GraduationCap className="h-5 w-5 text-primary" />
+                PhD Tracker
               </Link>
-            </nav>
-          </div>
-        </header>
+              <nav className="flex items-center gap-1">
+                {NAV_LINKS.map(({ href, label, icon: Icon }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <Icon className="h-4 w-4" />
+                    <span className="hidden sm:inline">{label}</span>
+                  </Link>
+                ))}
+                <Link
+                  href="/programmes/new"
+                  className="ml-2 flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">Add Programme</span>
+                </Link>
+                <div className="ml-2 flex items-center gap-2 border-l border-border pl-3">
+                  {user.user_metadata?.avatar_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={user.user_metadata.avatar_url}
+                      alt=""
+                      className="h-6 w-6 rounded-full"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : null}
+                  <form action={signOut}>
+                    <button
+                      type="submit"
+                      title="Sign out"
+                      className="flex items-center gap-1 rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </button>
+                  </form>
+                </div>
+              </nav>
+            </div>
+          </header>
+        )}
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">{children}</main>
       </body>
     </html>
