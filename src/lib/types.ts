@@ -29,6 +29,13 @@ export const STAGE_LABELS: Record<Stage, string> = {
 export const OUTCOMES = ["accepted", "rejected", "waitlisted", "withdrawn"] as const;
 export type Outcome = (typeof OUTCOMES)[number];
 
+export const OUTCOME_LABELS: Record<Outcome, string> = {
+  accepted: "Offer received",
+  rejected: "Application rejected",
+  waitlisted: "Waitlisted",
+  withdrawn: "Withdrawn",
+};
+
 export const PRIORITIES = ["low", "medium", "high"] as const;
 export type Priority = (typeof PRIORITIES)[number];
 

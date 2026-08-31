@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { STAGE_LABELS, type Outcome, type Priority, type Stage } from "@/lib/types";
+import { OUTCOME_LABELS, STAGE_LABELS, type Outcome, type Priority, type Stage } from "@/lib/types";
 
 export function StageBadge({ stage }: { stage: Stage }) {
   return <Badge variant="secondary">{STAGE_LABELS[stage]}</Badge>;
@@ -23,7 +23,7 @@ const OUTCOME_VARIANT: Record<Outcome, "success" | "destructive" | "warning" | "
 };
 
 export function OutcomeBadge({ outcome }: { outcome: Outcome }) {
-  return <Badge variant={OUTCOME_VARIANT[outcome]}>{outcome}</Badge>;
+  return <Badge variant={OUTCOME_VARIANT[outcome]}>{OUTCOME_LABELS[outcome]}</Badge>;
 }
 
 export function DueSoonBadge({ overdue }: { overdue: boolean }) {

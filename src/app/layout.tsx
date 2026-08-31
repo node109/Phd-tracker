@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
-import { LayoutDashboard, KanbanSquare, FileText, CheckSquare, Plus, GraduationCap, LogOut } from "lucide-react";
+import { LayoutDashboard, KanbanSquare, FileText, CheckSquare, Plus, GraduationCap, LogOut, Settings } from "lucide-react";
 import { signOut } from "@/app/actions";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
@@ -66,6 +66,13 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
                   <span className="hidden sm:inline">Add Programme</span>
                 </Link>
                 <div className="ml-2 flex items-center gap-2 border-l border-border pl-3">
+                  <Link
+                    href="/settings"
+                    title="Settings"
+                    className="flex items-center gap-1 rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Link>
                   {user.user_metadata?.avatar_url ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img

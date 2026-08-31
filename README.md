@@ -62,7 +62,9 @@ npm run dev
    adds the Tasks page's table, `0003_storage.sql` adds document file
    uploads, `0004_multi_user_schema.sql` and `0005_scope_rls_to_owner.sql`
    add per-user data isolation — see **Authentication** below for how to
-   sequence those two safely if you're upgrading an existing deployment.
+   sequence those two safely if you're upgrading an existing deployment —
+   and `0006_profiles.sql` adds each account's forwarding-email token (see
+   **Email** below).
 3. In **Project Settings → API**, copy the **Project URL** and **anon public**
    key into `.env.local` (locally) and into your Vercel project's environment
    variables (for deployment):
@@ -92,6 +94,24 @@ identity, Supabase issues the session, and RLS does the data isolation.
    doesn't require Google review.
 2. **Supabase dashboard** → Authentication → Providers → **Google** → paste
    the Client ID and Client Secret from step 1, enable the provider.
+
+## Email
+
+Each account gets a unique forwarding address (`phdtracker+<token>@corporatedropout.in`,
+shown on the **Settings** page) that's meant for forwarding admissions
+emails to be logged automatically — the address itself is provisioned
+already, but the automatic parsing side isn't wired up yet, so forwarding
+to it currently does nothing.
+
+Welcome emails (sent on first sign-in, introducing the forwarding address)
+go through [Resend](https://resend.com):
+
+1. Sign up at resend.com and grab an API key.
+2. Add it as `RESEND_API_KEY` in `.env.local` and in Vercel's environment
+   variables.
+
+Without this key set, sign-in still works fine — the welcome email is
+just silently skipped.
 
 ### Rolling this out on an existing deployment (zero downtime)
 
