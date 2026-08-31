@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Bar, BarChart, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { STAGES, STAGE_LABELS, type Stage } from "@/lib/types";
 
@@ -10,12 +11,18 @@ interface StageFunnelChartProps {
 const STAGE_COLOR_VARS = STAGES.map((_, i) => `var(--chart-stage-${i})`);
 
 export function StageFunnelChart({ counts }: StageFunnelChartProps) {
+  const router = useRouter();
   const data = STAGES.map((stage) => ({ stage, label: STAGE_LABELS[stage], count: counts[stage] ?? 0 }));
   const maxCount = Math.max(1, ...data.map((d) => d.count));
 
   return (
     <ResponsiveContainer width="100%" height={340}>
-      <BarChart data={data} layout="vertical" margin={{ top: 4, right: 28, bottom: 4, left: 4 }} barCategoryGap={6}>
+      <BarChart
+        data={data}
+        layout="vertical"
+        margin={{ top: 4, right: 28, bottom: 4, left: 4 }}
+        barCategoryGap={6}
+      >
         <XAxis type="number" hide domain={[0, maxCount + 1]} />
         <YAxis
           type="category"
@@ -37,7 +44,13 @@ export function StageFunnelChart({ counts }: StageFunnelChartProps) {
           formatter={(value) => [`${value} programme${value === 1 ? "" : "s"}`, "Count"]}
           labelFormatter={(label) => label}
         />
-        <Bar dataKey="count" radius={[0, 4, 4, 0]} maxBarSize={20}>
+        <Bar
+          dataKey="count"
+          radius={[0, 4, 4, 0]}
+          maxBarSize={20}
+          cursor="pointer"
+          onClick={(_, index) => router.push(`/board?stage=${data[index].stage}`)}
+        >
           {data.map((entry, index) => (
             <Cell key={entry.stage} fill={STAGE_COLOR_VARS[index]} />
           ))}

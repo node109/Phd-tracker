@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { DndContext, useDroppable, type DragEndEvent } from "@dnd-kit/core";
 import { Search, Trash2, X } from "lucide-react";
 import { bulkDeleteProgrammes, bulkUpdatePriority, bulkUpdateStage, updateStage } from "@/app/actions";
@@ -13,9 +13,15 @@ import { PRIORITIES, STAGES, STAGE_LABELS, type Priority, type Programme, type S
 interface BoardClientProps {
   programmes: Programme[];
   advisorByProgramme: Record<string, string | undefined>;
+  highlightStage?: Stage;
 }
 
 const ALL = "all";
+
+// Board columns read right-to-left (latest stage first) for a quick glance
+// at what's closest to a decision. STAGES itself stays in forward pipeline
+// order everywhere else (gamification scoring, "next stage" pickers, etc).
+const BOARD_STAGE_ORDER = [...STAGES].reverse();
 
 function DroppableColumn({ stage, children }: { stage: Stage; children: React.ReactNode }) {
   const { setNodeRef, isOver } = useDroppable({ id: stage });
@@ -26,12 +32,18 @@ function DroppableColumn({ stage, children }: { stage: Stage; children: React.Re
   );
 }
 
-export function BoardClient({ programmes, advisorByProgramme }: BoardClientProps) {
+export function BoardClient({ programmes, advisorByProgramme, highlightStage }: BoardClientProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [isPending, startTransition] = useTransition();
   const [query, setQuery] = useState("");
   const [countryFilter, setCountryFilter] = useState(ALL);
   const [priorityFilter, setPriorityFilter] = useState(ALL);
+  const columnRefs = useRef<Partial<Record<Stage, HTMLDivElement>>>({});
+
+  useEffect(() => {
+    if (!highlightStage) return;
+    columnRefs.current[highlightStage]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [highlightStage]);
 
   const countries = useMemo(
     () => [...new Set(programmes.map((p) => p.country).filter((c): c is string => !!c))].sort(),
@@ -49,7 +61,7 @@ export function BoardClient({ programmes, advisorByProgramme }: BoardClientProps
   }, [programmes, query, countryFilter, priorityFilter]);
 
   const columns = useMemo(
-    () => STAGES.map((stage) => ({ stage, programmes: filtered.filter((p) => p.stage === stage) })),
+    () => BOARD_STAGE_ORDER.map((stage) => ({ stage, programmes: filtered.filter((p) => p.stage === stage) })),
     [filtered]
   );
 
@@ -196,9 +208,17 @@ export function BoardClient({ programmes, advisorByProgramme }: BoardClientProps
       )}
 
       <DndContext onDragEnd={handleDragEnd}>
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
           {columns.map(({ stage, programmes: inStage }) => (
-            <div key={stage} className="w-72 flex-none">
+            <div
+              key={stage}
+              ref={(el) => {
+                if (el) columnRefs.current[stage] = el;
+              }}
+              className={`min-w-0 rounded-md ${
+                highlightStage === stage ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
+              }`}
+            >
               <div className="mb-2 flex items-center justify-between px-1">
                 <h2 className="text-sm font-semibold">{STAGE_LABELS[stage]}</h2>
                 <span className="text-xs text-muted-foreground">{inStage.length}</span>
