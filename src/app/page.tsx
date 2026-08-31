@@ -1,7 +1,7 @@
 import { Download } from "lucide-react";
 import { getDashboardData } from "@/lib/data";
 import { computeBadges, computePoints, computeStreak } from "@/lib/gamification";
-import { isDueSoon } from "@/lib/deadlines";
+import { DUE_SOON_DAYS, isDueSoon } from "@/lib/deadlines";
 import { STAGES, type Stage } from "@/lib/types";
 import { StatTile } from "@/components/stat-tile";
 import { GamificationHeader } from "@/components/gamification-header";
@@ -48,7 +48,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile label="Total programmes" value={programmes.length} />
         <StatTile label="Active" value={active} />
-        <StatTile label="Due within 14 days" value={dueSoonCount} />
+        <StatTile label={`Due within ${DUE_SOON_DAYS} days`} value={dueSoonCount} />
         <StatTile label="Reply rate" value={`${replyRate}%`} />
       </div>
 

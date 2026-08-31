@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DueSoonBadge } from "@/components/badges";
-import { daysUntilDeadline, isDueSoon, isOverdue } from "@/lib/deadlines";
+import { DUE_SOON_DAYS, daysUntilDeadline, isDueSoon, isOverdue } from "@/lib/deadlines";
 import type { Programme } from "@/lib/types";
 
 export function DeadlineList({ programmes }: { programmes: Programme[] }) {
@@ -12,7 +12,7 @@ export function DeadlineList({ programmes }: { programmes: Programme[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upcoming deadlines (next 14 days)</CardTitle>
+        <CardTitle>Upcoming deadlines (next {DUE_SOON_DAYS} days)</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         {upcoming.length === 0 && <p className="text-sm text-muted-foreground">Nothing due soon.</p>}

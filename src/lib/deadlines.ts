@@ -1,7 +1,7 @@
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { STAGES, type Programme } from "./types";
 
-export const DUE_SOON_DAYS = 14;
+export const DUE_SOON_DAYS = 30;
 
 // Once a programme has been submitted, its deadline is moot — "submitted",
 // "interview", and "decision" should never show as due-soon/overdue.
