@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import { LayoutDashboard, KanbanSquare, FileText, CheckSquare, Plus, GraduationCap, LogOut, Settings } from "lucide-react";
+import { Analytics } from "@vercel/analytics/next";
 import { signOut } from "@/app/actions";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
@@ -97,6 +98,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           </header>
         )}
         <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6">{children}</main>
+        <Analytics />
       </body>
     </html>
   );
